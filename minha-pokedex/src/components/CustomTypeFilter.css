@@ -1,0 +1,98 @@
+/* src/components/CustomTypeFilter.css */
+
+.custom-select-container {
+    position: relative;
+    width: 34%;
+    max-width: 100%; /* Mesma largura que o select nativo */
+    background-color: #555;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.selected-value {
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dropdown-arrow {
+    margin-left: 10px;
+}
+
+.options-list {
+    position: absolute;
+    top: 100%; /* Fica abaixo do campo selecionado */
+    left: 0;
+    right: 0;
+    background-color: #444; /* Cor de fundo da lista aberta */
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    list-style: none;
+    padding: 0;
+    margin: 5px 0 0 0;
+    z-index: 1001; /* Garante que fique acima de outros elementos */
+
+    max-height: 200px; /* Altura máxima da lista */
+    overflow-y: auto; /* Adiciona scroll vertical */
+}
+
+.option-item {
+    /* O item da lista como um todo. Remova o padding aqui se quiser que apenas o span tenha padding */
+    padding: 0 10px; /* Ajuste o padding do LI se necessário */
+    cursor: pointer;
+    text-transform: capitalize;
+    display: flex; /* Para centralizar o span dentro do LI */
+    align-items: center;
+    min-height: 40px; /* Garante uma altura mínima para cada item */
+}
+
+.type-label {
+    display: inline-block; /* Importante para que padding e margin funcionem corretamente */
+    border-radius: 8px; /* Mais arredondado */
+    padding: 5px 10px; /* Espaçamento ao redor do texto */
+    font-size: 0.8em;
+    font-weight: bold;
+    color: white; /* Cor padrão do texto, será sobrescrita pelos tipos */
+    margin: 5px 0; /* Espaço vertical entre os rótulos dentro da lista */
+}
+
+.option-item:hover {
+    background-color: #666; /* Cor ao passar o mouse */
+}
+
+/* Estilo para a opção "Todos os Tipos" */
+.option-item .type-label.type-all-types {
+    background-color: #777; /* Uma cor neutra para "Todos os Tipos" */
+    color: white;
+}
+
+/* Cores dos tipos de Pokémon para as opções customizadas */
+.option-item .type-label.type-normal { background-color: #A8A77A; }
+.option-item .type-label.type-fire { background-color: #EE8130; }
+.option-item .type-label.type-water { background-color: #6390F0; }
+.option-item .type-label.type-grass { background-color: #7AC74C; }
+.option-item .type-label.type-electric { background-color: #F7D02C; }
+.option-item .type-label.type-ice { background-color: #96D9D6; }
+.option-item .type-label.type-fighting { background-color: #C22E28; }
+.option-item .type-label.type-poison { background-color: #A33EA1; }
+.option-item .type-label.type-ground { background-color: #E2BF65; }
+.option-item .type-label.type-flying { background-color: #A98FF3; }
+.option-item .type-label.type-psychic { background-color: #F95587; }
+.option-item .type-label.type-bug { background-color: #A6B91A; }
+.option-item .type-label.type-rock { background-color: #B6A136; }
+.option-item .type-label.type-ghost { background-color: #735797; }
+.option-item .type-label.type-dragon { background-color: #065e64; }
+.option-item .type-label.type-steel { background-color: #B7B7CE; }
+.option-item .type-label.type-fairy { background-color: #D685AD; }
+
+/* Estilo da opção selecionada */
+.option-item.selected {
+    background-color: #616161; /* Fundo do LI quando selecionado */
+}
+.option-item.selected .type-label {
+    /* Você pode ajustar a cor do texto do label dentro do LI selecionado */
+    color: white; /* Garante que o texto do label seja branco no item selecionado */
+}
