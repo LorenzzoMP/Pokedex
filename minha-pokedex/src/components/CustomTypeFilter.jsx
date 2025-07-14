@@ -1,8 +1,10 @@
 // src/components/CustomTypeFilter.jsx
 import React, { useState, useRef, useEffect } from 'react';
+import { useLanguage } from '../context/languageContext';
 import './CustomTypeFilter.css';
 
 function CustomTypeFilter({ types, selectedType, onTypeChange }) {
+    const { t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -25,8 +27,8 @@ function CustomTypeFilter({ types, selectedType, onTypeChange }) {
     };
 
     const displaySelectedText = selectedType
-        ? selectedType.charAt(0).toUpperCase() + selectedType.slice(1)
-        : 'Todos os Tipos';
+        ? t(`type-${selectedType}`) || selectedType.charAt(0).toUpperCase() + selectedType.slice(1)
+        : t('allTypes');
 
     return (
         <div className="custom-select-container" ref={dropdownRef}>
@@ -44,11 +46,11 @@ function CustomTypeFilter({ types, selectedType, onTypeChange }) {
                         >
                             {type ? (
                                 <span className={`type-label type-${type}`}>
-                                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                                    {t(`type-${type}`) || type.charAt(0).toUpperCase() + type.slice(1)}
                                 </span>
                             ) : (
                                 <span className="type-label type-all-types"> {/* Nova classe para "Todos os Tipos" */}
-                                    Todos os Tipos
+                                    {t('allTypes')}
                                 </span>
                             )}
                         </li>

@@ -1,6 +1,8 @@
 import React from 'react';
+import { useLanguage } from '../context/languageContext';
 
 function PokemonCard({ pokemon, onClick }) {
+    const { t } = useLanguage();
     const formatId = (id) => String(id).padStart(3, '0');
 
     return (
@@ -18,7 +20,7 @@ function PokemonCard({ pokemon, onClick }) {
                         key={typeInfo.type.name}
                         className={`pokemon-type type-${typeInfo.type.name}`}
                     >
-                        {typeInfo.type.name}
+                        {t(`type-${typeInfo.type.name}`) || typeInfo.type.name}
                     </span>
                 ))}
             </div>
