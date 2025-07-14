@@ -1,9 +1,17 @@
+/* Pokedex.css */
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #d4d4d4;
     margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
+    min-height: 100vh; /* Garante que o body ocupa a altura total */
+    width: 100%;
 }
 
 header {
@@ -16,36 +24,94 @@ header {
     text-align: center;
     margin-bottom: 40px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    /* Adições para o layout flexbox */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    position: relative; /* Adicionado para posicionar o botão de tradução */
 }
 
 header h1 {
     margin: 0 0 15px 0;
+}   
+
+header h1 .logo-icon {
+    font-size: 1em;
+    vertical-align: middle;
+    margin-left: 5px;
 }
 
-/* Novo estilo para a área de busca e filtro */
+.language-toggle {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+}
+
+.language-toggle button {
+    padding: 10px 15px;
+    background-color: #585858; /* Cor específica para o toggle de linguagem */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.language-toggle button:hover {
+    background-color: #414141; /* Cor de hover específica para o toggle */
+}
+
+/* Responsividade do botão de idioma */
+@media (max-width: 768px) {
+    .language-toggle {
+        top: 8px;
+        left: 8px;
+    }
+    
+    .language-toggle button {
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .language-toggle {
+        top: 5px;
+        left: 5px;
+    }
+    
+    .language-toggle button {
+        padding: 6px 10px;
+    }
+    
+    .language-toggle button svg {
+        width: 14px;
+        height: 14px;
+    }
+}
+
 .search-and-filter-area {
     display: flex;
-    flex-direction: column; /* Agora em coluna por padrão */
+    flex-direction: column;
     justify-content: center;
-    align-items: center; /* Centraliza os itens na coluna */
-    gap: 15px; /* Espaçamento entre os itens */
-    width: 90%; /* Ocupa mais largura no header */
-    max-width: 800px; /* Limite a largura para não ficar muito esticado */
-    margin-top: 15px; /* Espaço entre o título e a barra de busca/filtro */
+    align-items: center;
+    gap: 15px;
+    width: 90%;
+    max-width: 800px;
+    margin-top: 15px;
+    overflow: visible; /* Permite que o dropdown seja visível */
 }
 
 .search-bar {
     display: flex;
     gap: 10px;
-    flex-grow: 1; /* Permite que a barra de busca cresça */
-    justify-content: center; /* Centraliza os itens dentro da barra de busca */
+    flex-grow: 1;
+    justify-content: center;
     width: 100%;
-    max-width: 100%; /* Limita a largura da barra de busca */
+    max-width: 100%;
 }
 
 header input[type="text"] {
@@ -53,8 +119,8 @@ header input[type="text"] {
     border: none;
     border-radius: 5px;
     width: 100%;
-    max-width: 300px;
-    margin-right: 0; /* Removido para usar o gap do search-bar */
+    max-width: 358px;
+    margin-right: 0;
 }
 
 header button {
@@ -71,37 +137,40 @@ header button:hover {
     background-color: #a51f01;
 }
 
-/* Estilos para o novo filtro por tipo */
 .filter-by-type {
     display: flex;
     align-items: center;
     gap: 10px;
     color: white;
-    /* Para telas menores, o label e select também se tornam coluna */
-    width: 100%; /* Garante que ocupe a largura completa dentro do search-and-filter-area */
-    justify-content: center; /* Centraliza o conteúdo dentro do filtro */
+    width: 100%;
+    justify-content: center;
+    overflow: visible; /* Permite que o dropdown seja visível */
 }
 
 .filter-by-type label {
     font-weight: bold;
 }
 
-/* Estilos padrão para a lista da Pokédex */
+/* ALTERAÇÃO 1: a linha "width: 100%;" foi removida daqui para permitir o centramento. */
 #pokedex-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 20px;
-    max-width: 1200px;
+    max-width: min(1300px, 100vw);
     margin: auto;
-    transition: max-width 0.3s ease, grid-template-columns 0.3s ease; /* Adiciona transição para suavizar a mudança */
+    padding: 20px; /* Adiciona um padding padrão para a lista */
+    transition: max-width 0.3s ease, grid-template-columns 0.3s ease;
+    flex-grow: 1; /* Permite que a lista ocupe o espaço restante */
+    overflow-x: hidden; /* Impede overflow horizontal na lista */
 }
 
-/* Estilos da lista da Pokédex quando o painel de detalhes está aberto */
+/* ALTERAÇÃO 2: A linha "max-width: 70%;" foi removida para a lista usar o espaço do contêiner. */
 .app-container.panel-open #pokedex-list {
-    max-width: 700px; /* Mantém a largura máxima da lista */
-    /* Diminui o min-width dos cards em aproximadamente 5% (180px * 0.95 = 171px) */
-    grid-template-columns: repeat(auto-fit, minmax(171px, 1fr));
-    padding: 1% 0; /* Altera o padding para remover o da esquerda e manter o superior/inferior */
+    grid-template-columns: repeat(3, 1fr); /* Exatamente 3 colunas por fileira */
+    gap: 20px;
+    padding: 20px;
+    margin: 0 auto; /* Centraliza horizontalmente */
+    justify-content: center; /* Centraliza o grid */
 }
 
 
@@ -128,7 +197,7 @@ header button:hover {
 .pokemon-card h2 {
     font-size: 1.2em;
     margin: 0;
-    text-transform: capitalize; /* Deixa a primeira letra maiúscula */
+    text-transform: capitalize;
 }
 
 .pokemon-card p {
@@ -153,11 +222,12 @@ header button:hover {
 .type-grass { background-color: #7AC74C; }
 .type-electric { background-color: #F7D02C; }
 .type-ice { background-color: #96D9D6; }
-.type-fighting { background-color: #C22E28; }
+.type-fighting { background-color: #C22E28; }   
 .type-poison { background-color: #A33EA1; }
 .type-ground { background-color: #E2BF65; }
 .type-flying { background-color: #A98FF3; }
 .type-psychic { background-color: #F95587; }
+.type-dark { background-color: #424242; }
 .type-bug { background-color: #A6B91A; }
 .type-rock { background-color: #B6A136; }
 .type-ghost { background-color: #735797; }
@@ -166,7 +236,7 @@ header button:hover {
 .type-fairy { background-color: #D685AD; }
 
 footer {
-    margin-top: 40px;
+    margin-top: auto; /* Empurra o footer para o final se o conteúdo for menor que a tela */
     padding: 20px;
     background-color: #333;
     color: white;
@@ -174,58 +244,95 @@ footer {
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
     border-top: 5px solid #e3350d;
     font-size: 0.9em;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden; /* Impede overflow horizontal no footer */
 }
 
+/* Responsividade do footer */
+@media (max-width: 768px) {
+    footer {
+        padding: 15px 10px;
+        font-size: 0.85em;
+    }
+}
+
+@media (max-width: 480px) {
+    footer {
+        padding: 12px 8px;
+        font-size: 0.8em;
+    }
+}
 
 
 /* Estilos para o container principal quando o painel está aberto */
 .app-container {
-    display: flex; /* Permite que o conteúdo principal e o painel fiquem lado a lado */
-    flex-direction: column; /* Padrão para telas grandes */
-    min-height: 100vh; /* Ocupa a altura total da viewport */
-    transition: margin-right 0.3s ease; /* Transição suave ao abrir/fechar o painel */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    transition: margin-right 0.3s ease;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden; /* Impede overflow horizontal no container */
+    overflow-y: visible; /* Permite que dropdowns sejam visíveis */
 }
 
-.app-container.panel-open {
-    margin-right: 32%; /* Desloca o conteúdo principal para a esquerda quando o painel está aberto */
-
+/* ALTERAÇÃO 3: Trocado "margin-right: 32%;" por "width: 68%;" para um layout mais estável. */
+@media (min-width: 769px) {
+    .app-container.panel-open {
+        width: 68%; /* Reduz para dar mais espaço para centralizar */
+    }
+    
+    /* Garantir que o header também se ajuste corretamente */
+    .app-container.panel-open header {
+        width: 100%;
+        margin-right: 0;
+    }
+    
+    /* Garantir que o footer também se ajuste corretamente */
+    .app-container.panel-open footer {
+        width: 100%;
+        margin-right: 0;
+    }
 }
 
 /* Estilos para o painel de detalhes */
 .pokemon-detail-panel {
-    position: fixed; /* Fixa o painel na tela */
+    position: fixed;
     top: 0;
     right: 0;
-    width: 30%; /* Ocupa 40% da largura da tela */
-    height: 100%; /* Ocupa a altura total da tela */
-    background-color: #333; /* Cor de fundo do painel */
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2); /* Sombra para dar profundidade */
-    overflow-y: auto; /* Adiciona scroll se o conteúdo for muito grande */
+    width: 33%; /* Ocupa 30% da largura da tela em telas grandes */
+    height: 100%;
+    background-color: #333;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
     padding: 20px;
-    z-index: 1000; /* Garante que o painel fique acima de outros elementos */
+    z-index: 1000;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    border-left: 5px solid #e3350d; /* Linha de destaque na lateral */
+    border-left: 5px solid #e3350d;
+    color: #fff; /* Cor do texto no painel de detalhes */
 }
 
 .pokemon-detail-panel .close-button {
-    background-color: #333; /* Botão de fechar */
+    background-color: #333;
     color: white;
     border: none;
-    border-radius: 50%; /* Redondo */
+    border-radius: 50%;
     width: 30px;
     height: 30px;
     font-size: 1.2em;
     cursor: pointer;
     position: absolute;
     top: 10px;
-    right: 93%;
+    left: 10px; /* Posiciona à esquerda para o botão de fechar */
     display: flex;
     justify-content: center;
     align-items: center;
     transition: background-color 0.3s ease;
+    z-index: 1001; /* Garante que fique acima da imagem */
 }
 
 .pokemon-detail-panel .close-button:hover {
@@ -233,22 +340,23 @@ footer {
 }
 
 .pokemon-detail-panel .smogon-button {
-    background-color: #333; /* Mesma cor de fundo do painel */
+    background-color: #333;
     color: white;
     border: none;
-    border-radius: 50%; /* Redondo */
+    border-radius: 50%;
     width: 30px;
     height: 30px;
     font-size: 1.2em;
     cursor: pointer;
     position: absolute;
     top: 10px;
-    right: 3%; /* Posiciona à esquerda do botão de fechar (ajuste este valor conforme necessário) */
+    right: 10px; /* Posiciona à direita para o botão do Smogon */
     display: flex;
     justify-content: center;
     align-items: center;
     transition: background-color 0.3s ease;
-    text-decoration: none; /* Remove sublinhado do link */
+    text-decoration: none;
+    z-index: 1001; /* Garante que fique acima da imagem */
 }
 
 .pokemon-detail-panel .smogon-button:hover {
@@ -257,15 +365,47 @@ footer {
 
 .pokemon-detail-panel .detail-content {
     width: 100%;
-    padding-top: 20px; /* Espaço para o botão de fechar */
+    padding-top: 40px; /* Espaço para os botões no topo */
+    padding-bottom: 50px; /* Adicionado espaçamento na parte inferior */
+}
+
+/* --- ESTILOS PARA IMAGEM E BOTÃO SHINY (ATUALIZADO) --- */
+.detail-image-container {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 15px auto; /* Centraliza o container */
 }
 
 .pokemon-detail-panel .detail-image {
-    width: 180px; /* Imagem maior */
-    height: 180px;
-    margin-bottom: 15px;
-    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.2)); /* Sombra suave na imagem */
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.2));
 }
+
+.shiny-toggle-btn {
+    position: absolute;
+    top: 5px;  /* Ajustado para descer um pouco do topo */
+    right: 5px; /* Ajustado para ter uma pequena margem da direita */
+    background: transparent; /* Garante fundo transparente */
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    color: #fff; /* Cor padrão da estrela (branco) */
+    transition: color 0.3s ease, transform 0.3s ease;
+    z-index: 5;
+}
+
+.shiny-toggle-btn:hover {
+    color: #ffd700; /* Amarelo no hover */
+    transform: scale(1.1);
+}
+
+.shiny-toggle-btn.active {
+    color: #ffd700; /* Amarelo quando ativo */
+    filter: drop-shadow(0 0 2px #ffd700);
+}
+
 
 .pokemon-detail-panel h2 {
     font-size: 2em;
@@ -276,7 +416,7 @@ footer {
 
 .pokemon-detail-panel .detail-id {
     font-size: 0.7em;
-    color: #777;
+    color: #bbb; /* Ajusta a cor para contraste */
     font-weight: normal;
     margin-left: 10px;
 }
@@ -287,7 +427,7 @@ footer {
 
 .pokemon-detail-panel .detail-info-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Duas colunas para altura e peso */
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
     margin-bottom: 20px;
     width: 80%;
@@ -299,7 +439,8 @@ footer {
 .pokemon-detail-panel .detail-info-grid p {
     margin: 0;
     padding: 8px;
-    background-color: #eee;
+    background-color: #555; /* Fundo mais escuro para info no painel escuro */
+    color: white;
     border-radius: 5px;
     font-size: 0.9em;
 }
@@ -307,8 +448,8 @@ footer {
 .pokemon-detail-panel h3 {
     margin-top: 20px;
     margin-bottom: 10px;
-    color: #3b4cca;
-    border-bottom: 2px solid #3b4cca;
+    color: #e3350d; /* Cor mais forte para títulos do painel */
+    border-bottom: 2px solid #e3350d;
     padding-bottom: 5px;
     width: 80%;
     max-width: 300px;
@@ -327,8 +468,9 @@ footer {
 }
 
 .pokemon-detail-panel ul li {
-    background-color: white;
-    border: 1px solid #ddd;
+    background-color: #555; /* Fundo mais escuro para itens da lista */
+    color: white;
+    border: 1px solid #666;
     border-radius: 5px;
     padding: 8px 15px;
     margin-bottom: 5px;
@@ -339,64 +481,399 @@ footer {
 }
 
 .pokemon-detail-panel ul li strong {
-    color: #555;
+    color: #eee; /* Cor do texto forte */
     text-transform: capitalize;
 }
 
-/* Responsividade */
+.pokemon-detail-panel .form-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px; /* Aumenta o espaço abaixo das abas */
+    width: 100%;
+}
+
+.pokemon-detail-panel .form-tab {
+    background-color: #555; /* Cinza um pouco mais claro */
+    color: white;
+    border: none; /* Remove a borda padrão */
+    border-left: 3px solid #e3350d; /* Borda vermelha esquerda */
+    border-right: 3px solid #e3350d; /* Borda vermelha direita */
+    width: 20%;
+    height: 200%;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: capitalize;
+    transition: background-color 0.3s;
+    transform: skewX(-25deg); /* Cria o efeito de paralelogramo */
+    margin: 0 -3px; /* Faz as abas se sobreporem levemente */
+    padding: 0; /* Remove padding do botão para aplicar no span interno */
+}
+
+/* Estilo para o texto dentro da aba, para "desfazer" a inclinação */
+.pokemon-detail-panel .form-tab-text {
+    display: inline-block;
+    transform: skewX(25deg); /* Desfaz a inclinação do container */
+    padding: 8px 20px; /* Espaçamento interno do texto */
+}
+
+
+.pokemon-detail-panel .form-tab:hover {
+    background-color: #888; /* Cinza mais claro no hover */
+}
+
+.pokemon-detail-panel .form-tab.active {
+    background-color: #e3350d; /* Cor de destaque para a aba ativa */
+    border-color: #a51f01; /* Borda mais escura para o ativo */
+}
+
+/* Ajuste no layout da cadeia de evolução para maior clareza */
+.evolution-branch-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.evolution-branches.branching-layout-left-arrow {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.evolution-branches.branching-layout-left-arrow .evolution-branch-item {
+     margin-top: 10px;
+}
+
+/* Estilos para a seção de evolução */
+
+.evolution-section {
+    width: 93%;
+    padding: 15px;
+    background-color: #444;
+    border-radius: 10px;
+    border: 2px solid #e3350d;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.evolution-tree-container {
+    display: flex;
+    flex-direction: column; /* Layout principal como coluna para acomodar ambos os formatos */
+    align-items: center;
+    gap: 10px;
+}
+
+.evolution-tree-node-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.evolution-tree-node-wrapper.linear-node {
+    flex-direction: row; /* Para evoluções únicas */
+
+}
+
+.evolution-stage-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px 5px;
+    background-color: #666;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    width: 90px;
+    flex-shrink: 0;
+    border: 2px solid transparent; /* Borda inicial transparente */
+}
+
+/*
+  >>> INÍCIO DAS NOVAS REGRAS <<<
+*/
+
+/* Estilo para destacar o card do Pokémon atual na cadeia de evolução */
+.evolution-stage-card.current-evolution-card {
+    border-color: #e3350d; /* Borda vermelha de destaque */
+    box-shadow: 0 0 10px rgba(227, 53, 13, 0.7); /* Sombra para dar mais ênfase */
+}
+
+/* Adiciona interatividade aos cards da evolução que NÃO são o atual */
+.evolution-stage-card:not(.current-evolution-card) {
+    cursor: pointer; /* Muda o cursor para indicar que é clicável */
+}
+
+.evolution-stage-card:not(.current-evolution-card):hover {
+    transform: scale(1.05); /* Aumenta um pouco o card no hover */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/*
+  >>> FIM DAS NOVAS REGRAS <<<
+*/
+
+.evolution-branches {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.evolution-branches.branching-layout-left-arrow {
+    flex-direction: column;
+    align-items: flex-start; 
+}
+
+.evolution-branch-item-left-arrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.evolution-arrow-and-condition {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.evolution-arrow-and-condition-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.evolution-arrow {
+    font-size: 1.8em;
+    color: #e3350d;
+    line-height: 1;
+}
+
+.evolution-condition {
+    font-size: 0.7em;
+    color: #ccc;
+    margin: 0;
+    word-break: break-word;
+    max-width: 80px;
+    text-align: left; /* Alinha o texto da condição à esquerda */
+}
+
+/* Estilo para layout linear */
+.evolution-branches.linear-layout {
+    flex-direction: row;
+    align-items: center;
+}
+
+/* Responsividade para a seção de evolução */
 @media (max-width: 768px) {
-    header {
-        padding: 5% 0%; /* Aumenta um pouco o padding para telas menores */
+    .evolution-section {
+        width: 95%;
+        padding: 12px;
+        gap: 8px;
+    }
+
+    .evolution-stage-card {
+        width: 85px;
+        padding: 8px 4px;
+    }
+
+    .evolution-stage-card img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .evolution-stage-card h4 {
+        font-size: 0.7em;
+        margin: 3px 0;
+    }
+
+    .evolution-stage-card p {
+        font-size: 0.6em;
+    }
+
+    .evolution-arrow {
+        font-size: 1.5em;
+    }
+
+    .evolution-condition {
+        font-size: 0.6em;
+        max-width: 60px;
+    }
+}
+
+@media (max-width: 600px) {
+    .evolution-section {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+    }
+
+    .evolution-stage-card {
+        width: 100px;
+        padding: 8px;
+    }
+
+    .evolution-stage-card img {
+        width: 70px;
+        height: 70px;
+    }
+
+    .evolution-arrow-and-condition {
+        flex-direction: column;
+        margin: 8px 0; 
+        min-width: unset; 
+    }
+
+    .evolution-arrow {
+        content: '↓';
+        font-size: 1.5em; 
+    }
+    
+    .evolution-condition {
+        font-size: 0.65em;
+        max-width: 80px;
+        text-align: center;
+    }
+    
+    /* Remove a seta do último item da cadeia em modo coluna */
+    .evolution-section > *:last-child .evolution-arrow-and-condition .evolution-arrow {
+        content: ''; 
+    }
+    
+    /* Adiciona margem inferior ao penúltimo item para espaçamento */
+    .evolution-section > *:not(:last-child) .evolution-arrow-and-condition {
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .evolution-section {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .evolution-stage-card {
+        width: 90px;
+        padding: 6px;
+    }
+
+    .evolution-stage-card img {
+        width: 65px;
+        height: 65px;
+    }
+
+    .evolution-stage-card h4 {
+        font-size: 0.65em;
+    }
+
+    .evolution-stage-card p {
+        font-size: 0.55em;
+    }
+}
+
+
+/* Breakpoint intermediário para tablets grandes */
+@media (max-width: 1024px) {
+    #pokedex-list {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 18px;
+    }
+
+    .pokemon-card {
+        padding: 14px;
+    }
+
+    .pokemon-card img {
+        width: 90px;
+        height: 90px;
+    }
+
+    .pokemon-card h2 {
+        font-size: 1.1em;
     }
 
     .search-and-filter-area {
-        /* Já está em coluna por padrão agora, então removemos a regra específica aqui */
-        gap: 20px; /* Aumenta o espaçamento entre eles */
-    }
-
-    .search-bar {
-        width: 90%; /* Ocupa mais largura */
+        gap: 15px;
     }
 
     header input[type="text"] {
-        width: 100%; /* Ocupa toda a largura disponível */
-        max-width: none; /* Remove o limite de largura */
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .custom-select-container {
+        width: 30%;
+    }
+    
+    /* Ajustar o layout quando o painel está aberto em tablets */
+    .app-container.panel-open #pokedex-list {
+    gap: 200px;
+    padding: 20px;
+    margin: 0 auto; /* Centraliza horizontalmente */
+    justify-content: center; /* Centraliza o grid */
+}
+}
+
+/* Responsividade geral */
+@media (max-width: 968px) {
+    header {
+        padding: 3% 0;
+    }
+
+    .search-and-filter-area {
+        flex-direction: column;
+        gap: 15px;
+        width: 95%;
+    }
+
+    .search-bar {
+        width: 100%;
+    }
+
+    header input[type="text"] {
+        width: 100%;
+        max-width: min(280px, calc(100vw - 40px));
+        min-width: 200px;
     }
 
     .filter-by-type {
-        width: 90%; /* Ocupa mais largura */
-        flex-direction: column; /* Coloca label e select em colunas */
-        gap: 5px;
+        width: 100%;
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
     }
 
-    .filter-by-type select {
-        width: 100%; /* Ocupa toda a largura disponível */
+    .filter-by-type label {
+        text-align: center;
+        margin-bottom: 5px;
     }
 
-    .app-container.panel-open {
-        margin-right: 0; /* Remove o deslocamento para o painel ocupar 100% da largura */
-    }
-
+    /* O painel de detalhes ocupa 100% da largura em telas menores */
     .pokemon-detail-panel {
-        width: 100%; /* Ocupa a largura total da tela */
-        position: fixed; /* Continua fixo */
+        width: 100%;
+        position: fixed;
         top: 0;
-        left: 0; /* Alinha à esquerda para ocupar a tela toda */
-        border-left: none; /* Remove a borda lateral */
-        border-bottom: 5px solid #e3350d; /* Adiciona uma borda na parte inferior */
+        left: 0;
+        border-left: none;
+        border-bottom: 5px solid #e3350d;
     }
 
     .pokemon-detail-panel .close-button {
         top: 10px;
+        left: 10px;
+    }
+    
+    .pokemon-detail-panel .smogon-button {
+        top: 10px;
         right: 10px;
     }
 
-    .pokemon-detail-panel .smogon-button {
-        top: 10px;
-        right: 50px; /* Mantém a posição relativa ao botão de fechar */
-    }
-
-    .pokemon-detail-panel .detail-image {
+    .pokemon-detail-panel .detail-image-container {
         width: 150px;
         height: 150px;
     }
@@ -405,20 +882,57 @@ footer {
         font-size: 1.8em;
     }
 
-    /* Em telas menores, a lista da Pokédex pode voltar aos estilos padrão */
     .app-container.panel-open #pokedex-list {
-        max-width: 1200px; /* Volta ao max-width original */
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Volta ao min-width original */
-        padding: 0; /* Volta ao padding original ou ajusta conforme necessário */
+        max-width: 90%; /* Mais espaço para mobile */
+        grid-template-columns: repeat(2, 1fr); /* 2 colunas para mobile */
+        gap: 12px;
+        padding: 15px;
+        margin: 0 auto; /* Centraliza horizontalmente */
+        justify-content: center;
+    }
+
+    /* Impede que a lista seja empurrada quando o painel está aberto */
+    .app-container.panel-open {
+        margin-right: 0;
+    }
+    
+    body.panel-is-open {
+        overflow: hidden;
+    }
+
+    #pokedex-list {
+        grid-template-columns: repeat(auto-fill, minmax(min(130px, calc(100vw - 30px)), 1fr));
+        gap: 12px;
+        padding: 15px;
     }
 }
 
 @media (max-width: 480px) {
+    header {
+        padding: 2% 0;
+    }
+
+    header h1 {
+        font-size: 1.8em;
+        margin-bottom: 10px;
+    }
+
+    .search-and-filter-area {
+        width: 98%;
+        gap: 12px;
+    }
+
+    header input[type="text"] {
+        font-size: 16px; /* Previne zoom no iOS */
+        min-width: 180px;
+        max-width: min(250px, calc(100vw - 30px));
+    }
+
     .pokemon-detail-panel {
         padding: 10px;
     }
 
-    .pokemon-detail-panel .detail-image {
+    .pokemon-detail-panel .detail-image-container {
         width: 120px;
         height: 120px;
     }
@@ -426,4 +940,78 @@ footer {
     .pokemon-detail-panel h2 {
         font-size: 1.5em;
     }
+
+    #pokedex-list {
+        grid-template-columns: repeat(auto-fill, minmax(min(120px, calc(100vw - 40px)), 1fr));
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .pokemon-card {
+        padding: 8px;
+    }
+
+    .pokemon-card img {
+        width: 70px;
+        height: 70px;
+    }
+
+    .pokemon-card h2 {
+        font-size: 0.9em;
+    }
+
+    .pokemon-type {
+        padding: 2px 6px;
+        margin: 1px;
+        font-size: 0.65em;
+    }
+    
+    /* Layout para painel aberto em telas pequenas */
+    .app-container.panel-open #pokedex-list {
+        max-width: 95%; /* Mais espaço para telas pequenas */
+        grid-template-columns: repeat(2, 1fr); /* 2 colunas para telas pequenas */
+        gap: 8px;
+        padding: 10px;
+        margin: 0 auto; /* Centraliza horizontalmente */
+        justify-content: center;
+    }
 }
+
+/* Breakpoint para telas muito pequenas */
+@media (max-width: 320px) {
+    #pokedex-list {
+        grid-template-columns: repeat(auto-fill, minmax(min(100px, calc(100vw - 20px)), 1fr));
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .pokemon-card {
+        padding: 6px;
+    }
+
+    .pokemon-card img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .pokemon-card h2 {
+        font-size: 0.8em;
+    }
+
+    .pokemon-type {
+        padding: 1px 4px;
+        margin: 0.5px;
+        font-size: 0.6em;
+    }
+}
+
+/* Breakpoint para telas muito grandes - otimizar layout de 3 colunas */
+@media (min-width: 1400px) {
+    .app-container.panel-open #pokedex-list {
+        max-width: 65%; /* Limita a largura para telas muito grandes */
+        grid-template-columns: repeat(3, 1fr); /* Mantém 3 colunas */
+        gap: 25px;
+        margin: 0 auto; /* Centraliza horizontalmente */
+        justify-content: center;
+    }
+}   

@@ -3,12 +3,13 @@
 .custom-select-container {
     position: relative;
     width: 34%;
-    max-width: 100%; /* Mesma largura que o select nativo */
+    max-width: calc(100vw - 40px); /* Garante que não ultrapasse a viewport */
     background-color: #555;
     border-radius: 5px;
     color: white;
     cursor: pointer;
     font-weight: bold;
+    overflow: visible; /* Permite que o dropdown seja visível */
 }
 
 .selected-value {
@@ -16,6 +17,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.selected-value:hover {
+    background-color: #666;
 }
 
 .dropdown-arrow {
@@ -23,20 +30,22 @@
 }
 
 .options-list {
-    position: absolute;
-    top: 100%; /* Fica abaixo do campo selecionado */
-    left: 0;
-    right: 0;
+    position: fixed; /* Mudança para fixed para sair do header */
     background-color: #444; /* Cor de fundo da lista aberta */
     border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     list-style: none;
     padding: 0;
-    margin: 5px 0 0 0;
-    z-index: 1001; /* Garante que fique acima de outros elementos */
-
+    margin: 0;
+    z-index: 99999; /* Z-index muito alto para ficar acima de tudo */
+    
     max-height: 200px; /* Altura máxima da lista */
     overflow-y: auto; /* Adiciona scroll vertical */
+    
+    /* Aparência melhorada */
+    border: 1px solid #555;
+    display: block;
+    min-width: 180px; /* Largura mínima */
 }
 
 .option-item {
@@ -95,4 +104,99 @@
 .option-item.selected .type-label {
     /* Você pode ajustar a cor do texto do label dentro do LI selecionado */
     color: white; /* Garante que o texto do label seja branco no item selecionado */
+}
+
+/* Responsividade para tablets grandes */
+@media (max-width: 1024px) {
+    .custom-select-container {
+        width: 30%;
+        max-width: calc(100vw - 200px);
+    }
+    
+    .options-list {
+        max-height: 180px;
+        min-width: 160px;
+    }
+}
+
+/* Responsividade para mobile */
+@media (max-width: 768px) {
+    .custom-select-container {
+        width: 100%;
+        max-width: 280px;
+        margin: 0 auto;
+    }
+    
+    .selected-value {
+        padding: 12px;
+        font-size: 0.95em;
+    }
+    
+    .options-list {
+        max-height: 180px;
+        min-width: 280px;
+    }
+    
+    .option-item {
+        min-height: 45px;
+        padding: 0 12px;
+    }
+    
+    .type-label {
+        padding: 6px 12px;
+        font-size: 0.85em;
+        margin: 6px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .custom-select-container {
+        max-width: min(280px, calc(100vw - 20px));
+    }
+    
+    .selected-value {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    
+    .options-list {
+        max-height: 160px;
+    }
+    
+    .option-item {
+        min-height: 42px;
+        padding: 0 10px;
+    }
+    
+    .type-label {
+        padding: 5px 10px;
+        font-size: 0.8em;
+        margin: 4px 0;
+    }
+}
+
+@media (max-width: 320px) {
+    .custom-select-container {
+        max-width: calc(100vw - 16px);
+    }
+    
+    .selected-value {
+        padding: 8px;
+        font-size: 0.85em;
+    }
+    
+    .options-list {
+        max-height: 140px;
+    }
+    
+    .option-item {
+        min-height: 38px;
+        padding: 0 8px;
+    }
+    
+    .type-label {
+        padding: 3px 8px;
+        font-size: 0.75em;
+        margin: 3px 0;
+    }
 }
