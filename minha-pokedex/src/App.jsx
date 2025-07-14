@@ -7,7 +7,7 @@ import CustomTypeFilter from './components/CustomTypeFilter';
 import { useLanguage } from './context/languageContext';
 
 const POKEAPI_BASE_URL = 'https://pokeapi.co/api/v2/pokemon/';
-const FIRST_GEN_LIMIT = 1025; // Limite ajustado para incluir mais Pokémon
+const FIRST_GEN_LIMIT = 1025;
 
 function App() {
     const { t, toggleLanguage } = useLanguage();
@@ -16,7 +16,7 @@ function App() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedPokemon, setSelectedPokemon] = useState(null);
     const [isPanelOpen, setIsPanelOpen] = useState(false);
-    const [selectedType, setSelectedType] = useState('');
+    const [selectedTypes, setSelectedTypes] = useState([]);
 
     useEffect(() => {
         async function fetchPokemonData() {
@@ -24,7 +24,7 @@ function App() {
             for (let i = 1; i <= FIRST_GEN_LIMIT; i++) {
                 try {
                     const response = await fetch(`${POKEAPI_BASE_URL}${i}`);
-                    if (!response.ok) continue; // Pula se houver erro
+                    if (!response.ok) continue;
                     const data = await response.json();
                     pokemonList.push(data);
                 } catch (error) {
@@ -40,36 +40,56 @@ function App() {
     useEffect(() => {
         let filtered = [...allPokemon];
         const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
+
         if (lowerCaseSearchTerm) {
             filtered = filtered.filter(pokemon =>
                 pokemon.name.includes(lowerCaseSearchTerm) ||
                 pokemon.id.toString() === lowerCaseSearchTerm
             );
         }
-        if (selectedType) {
-            filtered = filtered.filter(pokemon =>
-                pokemon.types.some(typeInfo => typeInfo.type.name === selectedType)
-            );
+
+        if (selectedTypes.length > 0) {
+            filtered = filtered.filter(pokemon => {
+                const pokemonTypes = pokemon.types.map(typeInfo => typeInfo.type.name);
+                return selectedTypes.every(selectedType => pokemonTypes.includes(selectedType));
+            });
         }
+
         setDisplayedPokemon(filtered);
-    }, [allPokemon, searchTerm, selectedType]);
+    }, [allPokemon, searchTerm, selectedTypes]);
 
     const handlePokemonClick = (pokemon) => {
         setSelectedPokemon(pokemon);
         setIsPanelOpen(true);
     };
 
-    /**
-     * NOVO: Lida com cliques nos cards da cadeia de evolução.
-     * Encontra o Pokémon na lista principal e o define como selecionado.
-     */
+    // FUNÇÃO REINTRODUZIDA: Lida com cliques nos cards da cadeia de evolução.
     const handleEvolutionClick = (pokemonName) => {
         const newSelectedPokemon = allPokemon.find(p => p.name === pokemonName);
         if (newSelectedPokemon) {
-            setSelectedPokemon(newSelectedPokemon); // Atualiza o painel com o novo Pokémon
+            setSelectedPokemon(newSelectedPokemon);
         } else {
             console.warn(`Pokémon "${pokemonName}" não encontrado na lista pré-carregada.`);
         }
+    };
+    
+    const handleTypeChange = (type) => {
+        if (type === '') {
+            setSelectedTypes([]);
+            return;
+        }
+
+        setSelectedTypes(prevTypes => {
+            if (prevTypes.includes(type)) {
+                return prevTypes.filter(t => t !== type);
+            } else {
+                if (prevTypes.length < 2) {
+                    return [...prevTypes, type];
+                }
+            }
+            return prevTypes;
+        });
+        setSearchTerm('');
     };
 
     const closePanel = () => {
@@ -113,8 +133,8 @@ function App() {
                         <label htmlFor="type-filter">{t('allTypes')}:</label>
                         <CustomTypeFilter
                             types={pokemonTypesForFilter}
-                            selectedType={selectedType}
-                            onTypeChange={setSelectedType}
+                            selectedTypes={selectedTypes}
+                            onTypeChange={handleTypeChange}
                         />
                     </div>
                 </div>
@@ -144,7 +164,8 @@ function App() {
                 <PokemonDetailPanel
                     pokemon={selectedPokemon}
                     onClose={closePanel}
-                    onEvolutionClick={handleEvolutionClick} // Passa a nova função para o painel
+                    // PROP REINTRODUZIDA: Passa a função para o painel de detalhes
+                    onEvolutionClick={handleEvolutionClick}
                 />
             )}
         </div>
