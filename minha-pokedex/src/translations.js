@@ -15,6 +15,7 @@ export const translations = {
         evolutionChain: "Cadeia de Evolução",
         loadingEvolutionChain: "Carregando cadeia de evolução...",
         developedBy: "Desenvolvido por Lorenzzo_MP",
+        showMore: "Exibir mais",
         
         // Traduções dos tipos de Pokémon
         "type-normal": "Normal",
@@ -109,6 +110,7 @@ export const translations = {
         evolutionChain: "Evolution Chain",
         loadingEvolutionChain: "Loading evolution chain...",
         developedBy: "Developed by Lorenzzo_MP",
+        showMore: "Show More",
         
         // English translations for Pokémon types
         "type-normal": "Normal",

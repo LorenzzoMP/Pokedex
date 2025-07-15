@@ -373,13 +373,12 @@ footer {
 .detail-image-container {
     position: relative;
     width: 180px;
-    height: 180px;
-    margin: 0 auto 15px auto; /* Centraliza o container */
+    margin: 0 auto 15px auto;
 }
 
 .pokemon-detail-panel .detail-image {
     width: 100%;
-    height: 100%;
+    object-fit: contain;
     filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.2));
 }
 
@@ -545,7 +544,7 @@ footer {
 /* Estilos para a seção de evolução */
 
 .evolution-section {
-    width: 93%;
+    width: 100%;
     padding: 15px;
     background-color: #444;
     border-radius: 10px;
@@ -588,6 +587,54 @@ footer {
     width: 90px;
     flex-shrink: 0;
     border: 2px solid transparent; /* Borda inicial transparente */
+}
+
+.evolution-tree-node-wrapper.linear-evolution {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Wrapper para o layout de ramificação (Eevee) */
+.evolution-tree-node-wrapper.branching-evolution {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Espaço entre o Pokémon base e o grupo de evoluções */
+}
+
+/* O container do grid para as evoluções ramificadas */
+.evolution-branches-grid {
+    display: grid;
+    /* Duas colunas: uma para o grupo (seta+condição), outra para o card */
+    grid-template-columns: auto auto; 
+    align-items: center;
+    row-gap: 15px;
+    column-gap: 10px;
+}
+
+/* O grupo que contém a seta e a condição (usado em AMBOS os layouts) */
+.evolution-arrow-and-condition {
+    display: flex;
+    flex-direction: column; /* Coloca a seta acima da condição */
+    align-items: center;
+    gap: 5px;
+    min-width: 80px; /* Garante um espaço mínimo para o texto não quebrar muito */
+}
+
+/* O texto da condição (usado em AMBOS os layouts) */
+.evolution-condition {
+    font-size: 0.7em;
+    color: #ccc;
+    margin: 0;
+    text-align: center; /* Centraliza o texto da condição */
+}
+
+/* A seta (usada em AMBOS os layouts) */
+.evolution-arrow {
+    font-size: 1.8em;
+    color: #e3350d;
+    line-height: 1;
 }
 
 /*
@@ -776,6 +823,28 @@ footer {
     }
 }
 
+/* Estilos para o botão "Show More" */
+.show-more-btn {
+    background-color: #555 !important; /* Fundo cinza */
+    border: 2px solid #e3350d !important; /* Bordas vermelhas */
+    color: white !important;
+    border-radius: 5px !important;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    font-weight: bold;
+}
+
+.show-more-btn:hover:not(:disabled) {
+    background-color: #707070 !important; /* Cinza mais claro no hover */
+    border-color: #a51f01 !important; /* Borda vermelha mais escura no hover */
+}
+
+.show-more-btn:disabled {
+    background-color: #444 !important; /* Cinza mais escuro quando desabilitado */
+    border-color: #666 !important; /* Borda mais escura quando desabilitado */
+    cursor: not-allowed;
+    opacity: 0.7;
+}
 
 /* Breakpoint intermediário para tablets grandes */
 @media (max-width: 1024px) {

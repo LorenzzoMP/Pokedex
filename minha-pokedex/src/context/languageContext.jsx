@@ -6,7 +6,7 @@ const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
     // Estado inicial da linguagem é Português do Brasil (pt)
-    const [language, setLanguage] = useState('en');
+    const [language, setLanguage] = useState('pt');
 
     const toggleLanguage = () => {
         setLanguage(prevLang => (prevLang === 'pt' ? 'en' : 'pt'));
