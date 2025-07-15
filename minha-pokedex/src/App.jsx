@@ -6,70 +6,172 @@ import PokemonDetailPanel from './components/PokemonDetailPanel';
 import CustomTypeFilter from './components/CustomTypeFilter';
 import { useLanguage } from './context/languageContext';
 
+
 const POKEAPI_BASE_URL = 'https://pokeapi.co/api/v2/pokemon/';
-const FIRST_GEN_LIMIT = 1025;
+const POKEMON_LIST_LIMIT = 1025;
+const PAGE_SIZE = 60;
+
 
 function App() {
     const { t, toggleLanguage } = useLanguage();
-    const [allPokemon, setAllPokemon] = useState([]);
-    const [displayedPokemon, setDisplayedPokemon] = useState([]);
+    const [pokemonList, setPokemonList] = useState([]); // lista básica {name, url}
+    const [displayedCount, setDisplayedCount] = useState(PAGE_SIZE);
+    const [displayedPokemon, setDisplayedPokemon] = useState([]); // [{name, url, ...detalhes}]
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedPokemon, setSelectedPokemon] = useState(null);
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [selectedTypes, setSelectedTypes] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
 
+    // Busca a lista de nomes/urls na inicialização
     useEffect(() => {
-        async function fetchPokemonData() {
-            const pokemonList = [];
-            for (let i = 1; i <= FIRST_GEN_LIMIT; i++) {
-                try {
-                    const response = await fetch(`${POKEAPI_BASE_URL}${i}`);
-                    if (!response.ok) continue;
-                    const data = await response.json();
-                    pokemonList.push(data);
-                } catch (error) {
-                    console.error(`Erro ao buscar o Pokémon ${i}:`, error);
-                }
+        async function fetchPokemonList() {
+            setLoading(true);
+            try {
+                const res = await fetch(`${POKEAPI_BASE_URL}?limit=${POKEMON_LIST_LIMIT}`);
+                const data = await res.json();
+                setPokemonList(data.results); // [{name, url}]
+            } catch {
+                setPokemonList([]);
+            } finally {
+                setLoading(false);
             }
-            setAllPokemon(pokemonList);
-            setDisplayedPokemon(pokemonList);
         }
-        fetchPokemonData();
+        fetchPokemonList();
     }, []);
 
+    // Função para buscar detalhes de um grupo de pokémons
+    const fetchPokemonDetails = async (list) => {
+        return await Promise.all(list.map(async (p) => {
+            if (p.id && p.sprites) return p; // já tem detalhes
+            try {
+                const res = await fetch(p.url);
+                if (!res.ok) return p;
+                const data = await res.json();
+                return { ...p, ...data };
+            } catch {
+                return p;
+            }
+        }));
+    };
+
+    // Carregamento inicial e filtros (não inclui displayedCount como dependência)
     useEffect(() => {
-        let filtered = [...allPokemon];
+        if (pokemonList.length === 0) return;
+
+        let filtered = pokemonList;
         const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
 
         if (lowerCaseSearchTerm) {
-            filtered = filtered.filter(pokemon =>
-                pokemon.name.includes(lowerCaseSearchTerm) ||
-                pokemon.id.toString() === lowerCaseSearchTerm
+            filtered = filtered.filter(p =>
+                p.name.includes(lowerCaseSearchTerm) ||
+                (p.id && p.id.toString() === lowerCaseSearchTerm)
             );
         }
 
-        if (selectedTypes.length > 0) {
-            filtered = filtered.filter(pokemon => {
-                const pokemonTypes = pokemon.types.map(typeInfo => typeInfo.type.name);
-                return selectedTypes.every(selectedType => pokemonTypes.includes(selectedType));
-            });
+        // Reset quando há mudança na busca ou filtros
+        setDisplayedCount(PAGE_SIZE);
+        
+        // Carrega os primeiros pokémon
+        const initialPokemon = filtered.slice(0, PAGE_SIZE);
+        
+        setLoading(true);
+        fetchPokemonDetails(initialPokemon).then((withDetails) => {
+            let result = withDetails;
+            if (selectedTypes.length > 0) {
+                result = result.filter(pokemon => {
+                    if (!pokemon.types) return false;
+                    const pokemonTypes = pokemon.types.map(typeInfo => typeInfo.type.name);
+                    return selectedTypes.every(selectedType => pokemonTypes.includes(selectedType));
+                });
+            }
+            setDisplayedPokemon(result);
+            setLoading(false);
+        });
+    }, [pokemonList, searchTerm, selectedTypes]);
+
+    // Função para carregar mais pokémon
+    const loadMorePokemon = async () => {
+        setLoadingMore(true);
+        
+        let filtered = pokemonList;
+        const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
+
+        if (lowerCaseSearchTerm) {
+            filtered = filtered.filter(p =>
+                p.name.includes(lowerCaseSearchTerm) ||
+                (p.id && p.id.toString() === lowerCaseSearchTerm)
+            );
         }
 
-        setDisplayedPokemon(filtered);
-    }, [allPokemon, searchTerm, selectedTypes]);
-
-    const handlePokemonClick = (pokemon) => {
-        setSelectedPokemon(pokemon);
-        setIsPanelOpen(true);
+        // Pega apenas os novos pokémon que ainda não foram carregados
+        const newCount = displayedCount + PAGE_SIZE;
+        const newPokemon = filtered.slice(displayedCount, newCount);
+        
+        if (newPokemon.length > 0) {
+            try {
+                const newPokemonWithDetails = await fetchPokemonDetails(newPokemon);
+                
+                // Aplica filtros de tipo nos novos pokémon
+                let filteredNewPokemon = newPokemonWithDetails;
+                if (selectedTypes.length > 0) {
+                    filteredNewPokemon = newPokemonWithDetails.filter(pokemon => {
+                        if (!pokemon.types) return false;
+                        const pokemonTypes = pokemon.types.map(typeInfo => typeInfo.type.name);
+                        return selectedTypes.every(selectedType => pokemonTypes.includes(selectedType));
+                    });
+                }
+                
+                // Adiciona os novos pokémon à lista existente
+                setDisplayedPokemon(prev => [...prev, ...filteredNewPokemon]);
+                setDisplayedCount(newCount);
+            } catch (error) {
+                console.error('Erro ao carregar mais pokémon:', error);
+            }
+        }
+        
+        setLoadingMore(false);
     };
 
-    // FUNÇÃO REINTRODUZIDA: Lida com cliques nos cards da cadeia de evolução.
-    const handleEvolutionClick = (pokemonName) => {
-        const newSelectedPokemon = allPokemon.find(p => p.name === pokemonName);
-        if (newSelectedPokemon) {
-            setSelectedPokemon(newSelectedPokemon);
+
+    // Ao clicar, busca detalhes se não tiver
+    const handlePokemonClick = async (pokemon) => {
+        if (pokemon.id && pokemon.sprites) {
+            setSelectedPokemon(pokemon);
+            setIsPanelOpen(true);
         } else {
-            console.warn(`Pokémon "${pokemonName}" não encontrado na lista pré-carregada.`);
+            setLoading(true);
+            try {
+                const res = await fetch(pokemon.url);
+                const data = await res.json();
+                setSelectedPokemon({ ...pokemon, ...data });
+                setIsPanelOpen(true);
+            } catch {
+                setSelectedPokemon(pokemon);
+                setIsPanelOpen(true);
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
+
+    // Busca detalhes ao clicar na evolução
+    const handleEvolutionClick = async (pokemonName) => {
+        const poke = pokemonList.find(p => p.name === pokemonName);
+        if (!poke) return;
+        setLoading(true);
+        try {
+            const res = await fetch(poke.url);
+            const data = await res.json();
+            setSelectedPokemon({ ...poke, ...data });
+            setIsPanelOpen(true);
+        } catch {
+            setSelectedPokemon(poke);
+            setIsPanelOpen(true);
+        } finally {
+            setLoading(false);
         }
     };
     
@@ -90,6 +192,8 @@ function App() {
             return prevTypes;
         });
         setSearchTerm('');
+        // Reset da paginação quando filtros mudam
+        setDisplayedCount(PAGE_SIZE);
     };
 
     const closePanel = () => {
@@ -104,10 +208,11 @@ function App() {
     const sortedTypes = allTypes.sort((a, b) => a.localeCompare(b));
     const pokemonTypesForFilter = ['', ...sortedTypes];
 
+
     return (
         <div className={isPanelOpen ? 'app-container panel-open' : 'app-container'}>
             <header>
-                 <h1>
+                <h1>
                     PokéEgg
                     <span className="material-symbols-outlined logo-icon">egg</span>
                 </h1>
@@ -126,7 +231,10 @@ function App() {
                             id="pokemon-search"
                             placeholder={t('searchPokemon')}
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setDisplayedCount(PAGE_SIZE); // resetar paginação ao buscar
+                            }}
                         />
                     </div>
                     <div className="filter-by-type">
@@ -141,16 +249,41 @@ function App() {
             </header>
 
             <main id="pokedex-list">
-                {displayedPokemon.length > 0 ? (
-                    displayedPokemon.map(pokemon => (
-                        <PokemonCard
-                            key={pokemon.id}
-                            pokemon={pokemon}
-                            onClick={handlePokemonClick}
-                        />
-                    ))
-                ) : (
+                {loading ? (
                     <p>{t('loadingPokemon')}</p>
+                ) : displayedPokemon.length > 0 ? (
+                    <>
+                        {displayedPokemon.map(pokemon => (
+                            <PokemonCard
+                                key={pokemon.name}
+                                pokemon={pokemon}
+                                onClick={handlePokemonClick}
+                            />
+                        ))}
+                        {(() => {
+                            let filtered = pokemonList;
+                            const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
+                            if (lowerCaseSearchTerm) {
+                                filtered = filtered.filter(p =>
+                                    p.name.includes(lowerCaseSearchTerm) ||
+                                    (p.id && p.id.toString() === lowerCaseSearchTerm)
+                                );
+                            }
+                            
+                            return displayedCount < filtered.length && (
+                                <button 
+                                    className="show-more-btn" 
+                                    style={{gridColumn: '1/-1', margin: '20px auto', padding: '10px 30px', fontSize: '1.1em'}} 
+                                    onClick={loadMorePokemon}
+                                    disabled={loadingMore}
+                                >
+                                    {loadingMore ? t('loadingPokemon') : t('showMore')}
+                                </button>
+                            );
+                        })()}
+                    </>
+                ) : (
+                    <p>{t('noPokemonFound') || 'Nenhum Pokémon encontrado.'}</p>
                 )}
             </main>
 
@@ -164,7 +297,6 @@ function App() {
                 <PokemonDetailPanel
                     pokemon={selectedPokemon}
                     onClose={closePanel}
-                    // PROP REINTRODUZIDA: Passa a função para o painel de detalhes
                     onEvolutionClick={handleEvolutionClick}
                 />
             )}

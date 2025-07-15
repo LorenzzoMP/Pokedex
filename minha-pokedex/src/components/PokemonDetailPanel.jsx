@@ -83,28 +83,69 @@ const PokemonDetailContent = ({ pokemon, t, onEvolutionClick }) => {
 
     const renderEvolutionTree = (node, currentPokemonName, onEvoClick) => {
         if (!node) return null;
+
         const baseCurrentName = currentPokemonName.split('-')[0];
         const isCurrent = node.name === baseCurrentName;
         const clickHandler = isCurrent ? () => {} : () => onEvoClick(node.name);
 
+        // --- Caso Especial: Múltiplas Evoluções (ex: Eevee) ---
+        if (node.evolutions?.length > 1) {
+            return (
+                <div className="evolution-tree-node-wrapper branching-evolution">
+                    {/* Card do Pokémon base (que possui várias evoluções) */}
+                    <div className={`evolution-stage-card ${isCurrent ? 'current-evolution-card' : ''}`} onClick={clickHandler}>
+                        <img src={node.image} alt={node.name} />
+                        <p className="evolution-name">{node.name}</p>
+                    </div>
+
+                    {/* A "seta mestra" foi REMOVIDA daqui. */}
+
+                    {/* O grid agora contém a seta e a condição para CADA evolução. */}
+                    <div className="evolution-branches-grid">
+                        {node.evolutions.map((evo) => {
+                            const evoIsCurrent = evo.to.name === baseCurrentName;
+                            const evoClickHandler = evoIsCurrent ? () => {} : () => onEvoClick(evo.to.name);
+                            
+                            return (
+                                <React.Fragment key={evo.to.name}>
+                                    {/* Coluna 1: O grupo de seta + condição, igual ao da evolução linear */}
+                                    <div className="evolution-arrow-and-condition">
+                                        <span className="evolution-arrow">→</span>
+                                        <p className="evolution-condition">{evo.condition}</p>
+                                    </div>
+                                    
+                                    {/* Coluna 2: Card do Pokémon Evoluído */}
+                                    <div className={`evolution-stage-card ${evoIsCurrent ? 'current-evolution-card' : ''}`} onClick={evoClickHandler}>
+                                        <img src={evo.to.image} alt={evo.to.name} />
+                                        <p className="evolution-name">{evo.to.name}</p>
+                                    </div>
+                                </React.Fragment>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        }
+
+        // --- Caso Padrão: Evolução Linear (uma única evolução ou nenhuma) ---
         return (
-            <div className="evolution-tree-node-wrapper">
+            <div className="evolution-tree-node-wrapper linear-evolution">
+                {/* Card do Pokémon atual na cadeia linear */}
                 <div className={`evolution-stage-card ${isCurrent ? 'current-evolution-card' : ''}`} onClick={clickHandler}>
                     <img src={node.image} alt={node.name} />
                     <p className="evolution-name">{node.name}</p>
                 </div>
-                {node.evolutions?.length > 0 && (
-                    <div className={`evolution-branches ${node.evolutions.length > 1 ? 'branching-layout' : 'linear-layout'}`}>
-                        {node.evolutions.map((evo, index) => (
-                            <div key={index} className="evolution-branch-item">
-                                <div className="evolution-arrow-and-condition">
-                                    <span className="evolution-arrow">→</span>
-                                    <p className="evolution-condition">{evo.condition}</p>
-                                </div>
-                                {renderEvolutionTree(evo.to, currentPokemonName, onEvoClick)}
-                            </div>
-                        ))}
-                    </div>
+                
+                {/* Se houver uma próxima evolução, renderiza a seta e continua a cadeia */}
+                {node.evolutions?.length === 1 && (
+                    <>
+                        <div className="evolution-arrow-and-condition">
+                            <span className="evolution-arrow">→</span>
+                            <p className="evolution-condition">{node.evolutions[0].condition}</p>
+                        </div>
+                        {/* A recursão continua aqui apenas para cadeias lineares */}
+                        {renderEvolutionTree(node.evolutions[0].to, currentPokemonName, onEvoClick)}
+                    </>
                 )}
             </div>
         );
