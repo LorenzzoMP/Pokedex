@@ -1,10 +1,8 @@
 # PokéEgg - Uma Pokédex Interativa com React
 
-![Imagem da Pokédex](https://i.imgur.com/GZqB3s4.png)
-
 Bem-vindo à PokéEgg, uma aplicação web moderna e interativa que serve como uma Pokédex completa, permitindo aos utilizadores explorar o vasto mundo dos Pokémon. Este projeto foi construído com React e Vite, focando numa interface de utilizador rápida, responsiva e rica em funcionalidades.
 
-**[➡️ Aceda à demonstração ao vivo aqui](https://SUA-URL-DO-VERCEL.app/)** (Substitua pelo seu link)
+**[➡️ Aceda à demonstração ao vivo aqui](https://pokedex-one-black-59.vercel.app/)**
 
 ---
 
@@ -51,7 +49,7 @@ Para executar este projeto na sua máquina local, siga os passos abaixo.
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git](https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git)
+    git clone [https://github.com/LorenzzoMP/Pokedex.git]
     ```
 
 2.  **Navegue para a pasta do projeto:**
@@ -95,4 +93,4 @@ Este projeto está licenciado sob a Licença MIT. Veja o arquivo `LICENSE` para 
 
 ---
 
-Feito com ❤️ por **[Seu Nome/Nickname]**.
+Feito por **[LorenzzoMP]**.
