@@ -79,7 +79,7 @@ const PokemonDetailContent = ({ pokemon, t, onEvolutionClick }) => {
             }
         };
         fetchEvolutionChainData();
-    }, [pokemon]);
+    },);
 
     const renderEvolutionTree = (node, currentPokemonName, onEvoClick) => {
         if (!node) return null;
