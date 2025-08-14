@@ -1,85 +1,156 @@
-// PokemonDetailPanel.jsx
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/languageContext';
 import pokeballIcon from '../assets/game.png';
 
-// --- Componente Interno para o Conteúdo do Painel ---
 const PokemonDetailContent = ({ pokemon, t, onEvolutionClick }) => {
     const [evolutionChain, setEvolutionChain] = useState(null);
-    const [isShiny, setIsShiny] = useState(false); // Estado para controlar a forma shiny
+    const [typeEffectiveness, setTypeEffectiveness] = useState(null);
+    const [isLoadingEffectiveness, setIsLoadingEffectiveness] = useState(true);
+    const [isShiny, setIsShiny] = useState(false);
 
-    // Reseta o estado shiny quando o Pokémon muda
     useEffect(() => {
         setIsShiny(false);
+        setTypeEffectiveness(null);
+        setIsLoadingEffectiveness(true);
     }, [pokemon]);
 
     const formatId = (id) => String(id).padStart(3, '0');
 
-    // ... (funções de tradução permanecem as mesmas) ...
     const translateItemName = (itemName) => {
         const translationKey = `evo-item-${itemName.replace(/-/g, '')}`;
         const translated = t(translationKey);
-        return translated !== translationKey ? translated : itemName.replace(/-/g, ' ');
+        return translated !== translationKey && translated ? translated : itemName.replace(/-/g, ' ');
     };
 
     const translateEvolutionCondition = (detail) => {
         const trigger = detail.trigger.name;
-        let conditions = [];
-        if (trigger === 'use-item' && detail.item) return `${t('evo-use')} ${translateItemName(detail.item.name)}`;
+
+        if (trigger === 'use-item' && detail.item) {
+            return `${t('evo-use')} ${translateItemName(detail.item.name)}`;
+        }
+
         if (trigger === 'trade') {
             if (detail.held_item) return `${t('evo-trade')} ${t('evo-holding')} ${translateItemName(detail.held_item.name)}`;
             if (detail.trade_species) return `${t('evo-tradeFor')} ${detail.trade_species.name.replace(/-/g, ' ')}`;
             return t('evo-trade');
         }
+
         if (trigger === 'level-up') {
+            const conditions = [];
             if (detail.min_level) conditions.push(`${t('evo-lvl')} ${detail.min_level}`);
+            if (detail.min_happiness) conditions.push(`${t('evo-withHappiness')} ${detail.min_happiness}`);
+            if (detail.min_affection) conditions.push(`${t('evo-withAffection')} ${detail.min_affection}`);
+            if (detail.min_beauty) conditions.push(`${t('evo-withBeauty')} ${detail.min_beauty}`);
             if (detail.time_of_day) conditions.push(t(`evo-time-${detail.time_of_day}`));
+            if (detail.known_move) conditions.push(`${t('evo-knowing')} ${detail.known_move.name.replace(/-/g, ' ')}`);
+            if (detail.held_item) conditions.push(`${t('evo-holding')} ${translateItemName(detail.held_item.name)}`);
+            if (detail.location) conditions.push(`${t('evo-atLocation')} ${detail.location.name.replace(/-/g, ' ')}`);
+            if (detail.needs_overworld_rain) conditions.push(t('evo-inRain'));
+            if (detail.gender === 1) conditions.push(t('evo-female'));
+            if (detail.gender === 2) conditions.push(t('evo-male'));
+            
             if (conditions.length === 0) return t('evo-levelUp');
+            
             return conditions.join(' / ');
         }
+        
         return trigger.replace(/-/g, ' ');
     };
 
     const consolidateEvolutionConditions = (evolutionDetails) => {
-        if (!evolutionDetails || evolutionDetails.length === 0) return t('evo-levelUp');
+        if (!evolutionDetails || evolutionDetails.length === 0) return '';
         const allConditions = evolutionDetails.map(detail => translateEvolutionCondition(detail));
-        let uniqueConditions = [...new Set(allConditions)];
-        if (uniqueConditions.length > 1) {
-            uniqueConditions = uniqueConditions.filter(condA => !uniqueConditions.some(condB => condB.length > condA.length && condB.startsWith(condA)));
-        }
+        const uniqueConditions = [...new Set(allConditions)];
         return uniqueConditions.join(' ou ');
     };
 
+    useEffect(() => {
+        if (!pokemon?.types) return;
+
+        const controller = new AbortController();
+        const { signal } = controller;
+
+        const fetchEffectivenessData = async () => {
+            setIsLoadingEffectiveness(true);
+            try {
+                const typePromises = pokemon.types.map(typeInfo =>
+                    fetch(typeInfo.type.url, { signal }).then(res => res.json())
+                );
+                const typesData = await Promise.all(typePromises);
+
+                const combined = {};
+                typesData.forEach(typeData => {
+                    const { damage_relations } = typeData;
+                    damage_relations.double_damage_from.forEach(rel => { combined[rel.name] = (combined[rel.name] || 1) * 2; });
+                    damage_relations.half_damage_from.forEach(rel => { combined[rel.name] = (combined[rel.name] || 1) * 0.5; });
+                    damage_relations.no_damage_from.forEach(rel => { combined[rel.name] = 0; });
+                });
+
+                const finalEffectiveness = Object.fromEntries(Object.entries(combined).filter(([, mult]) => mult !== 1));
+                setTypeEffectiveness(finalEffectiveness);
+
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.error("Falha ao calcular eficácia de tipos:", error);
+                }
+            } finally {
+                if (!signal.aborted) {
+                    setIsLoadingEffectiveness(false);
+                }
+            }
+        };
+
+        fetchEffectivenessData();
+
+        return () => {
+            controller.abort();
+        };
+    }, [pokemon]);
 
     useEffect(() => {
+        if (!pokemon?.species?.url) return;
+
+        const controller = new AbortController();
+        const { signal } = controller;
+
         const fetchEvolutionChainData = async () => {
-            if (!pokemon?.species?.url) {
-                setEvolutionChain(null);
-                return;
-            }
+            setEvolutionChain(null);
             try {
-                const speciesResponse = await fetch(pokemon.species.url);
+                const speciesResponse = await fetch(pokemon.species.url, { signal });
                 const speciesData = await speciesResponse.json();
-                const evoChainResponse = await fetch(speciesData.evolution_chain.url);
+                const evoChainResponse = await fetch(speciesData.evolution_chain.url, { signal });
                 const evoChainData = await evoChainResponse.json();
 
                 const processEvolutionNode = async (node) => {
-                    const pokemonDataResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${node.species.name}`);
+                    const pokemonDataResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${node.species.name}`, { signal });
                     const pokemonData = await pokemonDataResponse.json();
+                    
                     const evolutions = await Promise.all(node.evolves_to.map(async (nextEvo) => ({
                         to: await processEvolutionNode(nextEvo),
                         condition: consolidateEvolutionConditions(nextEvo.evolution_details),
                     })));
-                    return { name: node.species.name, image: pokemonData.sprites.front_default, evolutions };
+
+                    return { 
+                        name: node.species.name, 
+                        image: pokemonData.sprites.front_default, 
+                        evolutions 
+                    };
                 };
                 setEvolutionChain(await processEvolutionNode(evoChainData.chain));
             } catch (error) {
-                console.error("Erro ao buscar cadeia de evolução:", error);
-                setEvolutionChain(null);
+                if (error.name !== 'AbortError') {
+                    console.error("Erro ao buscar cadeia de evolução:", error);
+                    setEvolutionChain(null);
+                }
             }
         };
+
         fetchEvolutionChainData();
-    },);
+
+        return () => {
+            controller.abort();
+        };
+    }, [pokemon, t]);
 
     const renderEvolutionTree = (node, currentPokemonName, onEvoClick) => {
         if (!node) return null;
@@ -88,19 +159,13 @@ const PokemonDetailContent = ({ pokemon, t, onEvolutionClick }) => {
         const isCurrent = node.name === baseCurrentName;
         const clickHandler = isCurrent ? () => {} : () => onEvoClick(node.name);
 
-        // --- Caso Especial: Múltiplas Evoluções (ex: Eevee) ---
         if (node.evolutions?.length > 1) {
             return (
                 <div className="evolution-tree-node-wrapper branching-evolution">
-                    {/* Card do Pokémon base (que possui várias evoluções) */}
                     <div className={`evolution-stage-card ${isCurrent ? 'current-evolution-card' : ''}`} onClick={clickHandler}>
                         <img src={node.image} alt={node.name} />
                         <p className="evolution-name">{node.name}</p>
                     </div>
-
-                    {/* A "seta mestra" foi REMOVIDA daqui. */}
-
-                    {/* O grid agora contém a seta e a condição para CADA evolução. */}
                     <div className="evolution-branches-grid">
                         {node.evolutions.map((evo) => {
                             const evoIsCurrent = evo.to.name === baseCurrentName;
@@ -108,13 +173,10 @@ const PokemonDetailContent = ({ pokemon, t, onEvolutionClick }) => {
                             
                             return (
                                 <React.Fragment key={evo.to.name}>
-                                    {/* Coluna 1: O grupo de seta + condição, igual ao da evolução linear */}
                                     <div className="evolution-arrow-and-condition">
                                         <span className="evolution-arrow">→</span>
                                         <p className="evolution-condition">{evo.condition}</p>
                                     </div>
-                                    
-                                    {/* Coluna 2: Card do Pokémon Evoluído */}
                                     <div className={`evolution-stage-card ${evoIsCurrent ? 'current-evolution-card' : ''}`} onClick={evoClickHandler}>
                                         <img src={evo.to.image} alt={evo.to.name} />
                                         <p className="evolution-name">{evo.to.name}</p>
@@ -127,23 +189,18 @@ const PokemonDetailContent = ({ pokemon, t, onEvolutionClick }) => {
             );
         }
 
-        // --- Caso Padrão: Evolução Linear (uma única evolução ou nenhuma) ---
         return (
             <div className="evolution-tree-node-wrapper linear-evolution">
-                {/* Card do Pokémon atual na cadeia linear */}
                 <div className={`evolution-stage-card ${isCurrent ? 'current-evolution-card' : ''}`} onClick={clickHandler}>
                     <img src={node.image} alt={node.name} />
                     <p className="evolution-name">{node.name}</p>
                 </div>
-                
-                {/* Se houver uma próxima evolução, renderiza a seta e continua a cadeia */}
                 {node.evolutions?.length === 1 && (
                     <>
                         <div className="evolution-arrow-and-condition">
                             <span className="evolution-arrow">→</span>
                             <p className="evolution-condition">{node.evolutions[0].condition}</p>
                         </div>
-                        {/* A recursão continua aqui apenas para cadeias lineares */}
                         {renderEvolutionTree(node.evolutions[0].to, currentPokemonName, onEvoClick)}
                     </>
                 )}
@@ -154,6 +211,10 @@ const PokemonDetailContent = ({ pokemon, t, onEvolutionClick }) => {
     const artwork = pokemon.sprites.other['official-artwork'];
     const shinyArtworkUrl = artwork.front_shiny;
     const defaultArtworkUrl = artwork.front_default;
+
+    const weaknesses = typeEffectiveness ? Object.entries(typeEffectiveness).filter(([, mult]) => mult > 1) : [];
+    const resistances = typeEffectiveness ? Object.entries(typeEffectiveness).filter(([, mult]) => mult < 1 && mult > 0) : [];
+    const immunities = typeEffectiveness ? Object.entries(typeEffectiveness).filter(([, mult]) => mult === 0) : [];
 
     return (
         <div className="detail-content">
@@ -189,6 +250,48 @@ const PokemonDetailContent = ({ pokemon, t, onEvolutionClick }) => {
                 <p><strong>{t('height')}</strong> {pokemon.height / 10} m</p>
                 <p><strong>{t('weight')}</strong> {pokemon.weight / 10} kg</p>
             </div>
+            
+            {isLoadingEffectiveness ? (
+                <p>{t('loading')}</p>
+            ) : (
+                (weaknesses.length > 0 || resistances.length > 0 || immunities.length > 0) && (
+                    <div className="type-effectiveness-section">
+                        <div className="type-effectiveness-grid">
+                            {weaknesses.length > 0 && (
+                                <div className="effectiveness-category">
+                                    <h3>{t('weaknesses')}</h3>
+                                    <div className="types-container">
+                                        {weaknesses.map(([type, mult]) => (
+                                            <span key={type} className={`pokemon-type type-${type}`}>{t(`type-${type}`) || type} ({mult}x)</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {resistances.length > 0 && (
+                                <div className="effectiveness-category">
+                                    <h3>{t('resistances')}</h3>
+                                    <div className="types-container">
+                                        {resistances.map(([type, mult]) => (
+                                            <span key={type} className={`pokemon-type type-${type}`}>{t(`type-${type}`) || type} ({mult}x)</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {immunities.length > 0 && (
+                                <div className="effectiveness-category">
+                                    <h3>{t('immunities')}</h3>
+                                    <div className="types-container">
+                                        {immunities.map(([type]) => (
+                                            <span key={type} className={`pokemon-type type-${type}`}>{t(`type-${type}`) || type} (0x)</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )
+            )}
+
             <h3>{t('baseStats')}</h3>
             <ul className="detail-stats">
                 {pokemon.stats.map(statInfo => (
@@ -207,7 +310,6 @@ const PokemonDetailContent = ({ pokemon, t, onEvolutionClick }) => {
                 ))}
             </ul>
 
-            {/* CONDIÇÃO ADICIONADA AQUI */}
             {evolutionChain && evolutionChain.evolutions && evolutionChain.evolutions.length > 0 && (
                 <>
                     <h3>{t('evolutionChain')}</h3>
@@ -222,7 +324,6 @@ const PokemonDetailContent = ({ pokemon, t, onEvolutionClick }) => {
     );
 };
 
-// --- Componente Principal do Painel ---
 function PokemonDetailPanel({ pokemon, onClose, onEvolutionClick }) {
     const { t } = useLanguage();
     const [forms, setForms] = useState([]);
@@ -231,7 +332,7 @@ function PokemonDetailPanel({ pokemon, onClose, onEvolutionClick }) {
 
     const getSmogonUrl = (pokemonName) => {
         const formattedName = pokemonName.toLowerCase().replace(/[^a-z0-9]/g, '');
-        return `https://www.smogon.com/dex/ss/pokemon/${formattedName}/`;
+        return `https://www.smogon.com/dex/sv/pokemon/${formattedName}/`;
     };
 
     useEffect(() => {
@@ -241,7 +342,7 @@ function PokemonDetailPanel({ pokemon, onClose, onEvolutionClick }) {
             try {
                 const speciesResponse = await fetch(pokemon.species.url);
                 const speciesData = await speciesResponse.json();
-                if (speciesData.varieties?.length > 0) {
+                if (speciesData.varieties?.length > 1) {
                     const formsData = await Promise.all(
                         speciesData.varieties.map(v => fetch(v.pokemon.url).then(res => res.json()))
                     );

@@ -9,6 +9,9 @@ export const translations = {
         allTypes: "Todos os Tipos",
         height: "Altura:",
         weight: "Peso:",
+        weaknesses: "Fraquezas",
+        resistances: "Resistências",
+        immunities: "Imunidades",
         baseStats: "Estatísticas Base",
         abilities: "Habilidades",
         hidden: "(Oculta)",
@@ -104,6 +107,9 @@ export const translations = {
         allTypes: "All Types",
         height: "Height:",
         weight: "Weight:",
+        weaknesses: "Weaknesses",
+        resistances: "Resistances",
+        immunities: "Immunities",
         baseStats: "Base Stats",
         abilities: "Abilities",
         hidden: "(Hidden)",
@@ -111,6 +117,7 @@ export const translations = {
         loadingEvolutionChain: "Loading evolution chain...",
         developedBy: "Developed by Lorenzzo_MP",
         showMore: "Show More",
+    
         
         // English translations for Pokémon types
         "type-normal": "Normal",
