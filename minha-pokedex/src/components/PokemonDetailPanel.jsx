@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '../context/languageContext';
 import pokeballIcon from '../assets/game.png';
 
@@ -16,13 +16,13 @@ const PokemonDetailContent = ({ pokemon, t, onEvolutionClick }) => {
 
     const formatId = (id) => String(id).padStart(3, '0');
 
-    const translateItemName = (itemName) => {
+    const translateItemName = useCallback((itemName) => {
         const translationKey = `evo-item-${itemName.replace(/-/g, '')}`;
         const translated = t(translationKey);
         return translated !== translationKey && translated ? translated : itemName.replace(/-/g, ' ');
-    };
+    }, [t]);
 
-    const translateEvolutionCondition = (detail) => {
+    const translateEvolutionCondition = useCallback((detail) => {
         const trigger = detail.trigger.name;
 
         if (trigger === 'use-item' && detail.item) {
@@ -55,14 +55,14 @@ const PokemonDetailContent = ({ pokemon, t, onEvolutionClick }) => {
         }
         
         return trigger.replace(/-/g, ' ');
-    };
+    }, [t, translateItemName]);
 
-    const consolidateEvolutionConditions = (evolutionDetails) => {
+    const consolidateEvolutionConditions = useCallback((evolutionDetails) => {
         if (!evolutionDetails || evolutionDetails.length === 0) return '';
         const allConditions = evolutionDetails.map(detail => translateEvolutionCondition(detail));
         const uniqueConditions = [...new Set(allConditions)];
         return uniqueConditions.join(' ou ');
-    };
+    }, [translateEvolutionCondition]);
 
     useEffect(() => {
         if (!pokemon?.types) return;
@@ -150,7 +150,7 @@ const PokemonDetailContent = ({ pokemon, t, onEvolutionClick }) => {
         return () => {
             controller.abort();
         };
-    }, [pokemon, t]);
+    }, [pokemon, t, consolidateEvolutionConditions]);
 
     const renderEvolutionTree = (node, currentPokemonName, onEvoClick) => {
         if (!node) return null;

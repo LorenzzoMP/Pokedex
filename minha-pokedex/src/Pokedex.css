@@ -10,7 +10,7 @@ body {
     padding: 0;
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* Garante que o body ocupa a altura total */
+    min-height: 100vh;
     width: 100%;
 }
 
@@ -18,9 +18,8 @@ header {
     background-color: #333;
     border-bottom: 5px solid #e3350d;
     color: white;
-    padding: 2% 0%;
+    padding: 20px;
     width: 100%;
-    max-width: 100%;
     text-align: center;
     margin-bottom: 40px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -28,12 +27,12 @@ header {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    position: relative; /* Adicionado para posicionar o botão de tradução */
+    position: relative;
 }
 
 header h1 {
     margin: 0 0 15px 0;
-}   
+}  
 
 header h1 .logo-icon {
     font-size: 1em;
@@ -41,16 +40,19 @@ header h1 .logo-icon {
     margin-left: 5px;
 }
 
-.language-toggle {
+.header-top-left-controls {
     position: absolute;
     top: 10px;
     left: 10px;
     z-index: 10;
+    display: flex;
+    gap: 10px;
 }
 
-.language-toggle button {
-    padding: 10px 15px;
-    background-color: #585858; /* Cor específica para o toggle de linguagem */
+.language-toggle button,
+.favorites-toggle .toggle-button {
+    padding: 10px;
+    background-color: #585858;
     color: white;
     border: none;
     border-radius: 5px;
@@ -59,38 +61,22 @@ header h1 .logo-icon {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
+    height: 44px;
+    width: 44px;
 }
 
-.language-toggle button:hover {
-    background-color: #414141; /* Cor de hover específica para o toggle */
+.language-toggle button:hover,
+.favorites-toggle .toggle-button:hover {
+    background-color: #414141;
 }
 
-/* Responsividade do botão de idioma */
-@media (max-width: 768px) {
-    .language-toggle {
-        top: 8px;
-        left: 8px;
-    }
-    
-    .language-toggle button {
-        padding: 8px 12px;
-    }
+.favorites-toggle .toggle-button.active {
+    background-color: #414141;
 }
 
-@media (max-width: 480px) {
-    .language-toggle {
-        top: 5px;
-        left: 5px;
-    }
-    
-    .language-toggle button {
-        padding: 6px 10px;
-    }
-    
-    .language-toggle button svg {
-        width: 14px;
-        height: 14px;
-    }
+.favorites-toggle .material-symbols-outlined {
+    color: white;
 }
 
 .search-and-filter-area {
@@ -102,16 +88,12 @@ header h1 .logo-icon {
     width: 90%;
     max-width: 800px;
     margin-top: 15px;
-    overflow: visible; /* Permite que o dropdown seja visível */
+    overflow: visible;
 }
 
 .search-bar {
-    display: flex;
-    gap: 10px;
-    flex-grow: 1;
-    justify-content: center;
     width: 100%;
-    max-width: 100%;
+    max-width: 358px;
 }
 
 header input[type="text"] {
@@ -119,22 +101,6 @@ header input[type="text"] {
     border: none;
     border-radius: 5px;
     width: 100%;
-    max-width: 358px;
-    margin-right: 0;
-}
-
-header button {
-    padding: 10px 15px;
-    background-color: #e3350d;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-header button:hover {
-    background-color: #a51f01;
 }
 
 .filter-by-type {
@@ -144,33 +110,31 @@ header button:hover {
     color: white;
     width: 100%;
     justify-content: center;
-    overflow: visible; /* Permite que o dropdown seja visível */
+    overflow: visible;
 }
 
 .filter-by-type label {
     font-weight: bold;
 }
 
-/* ALTERAÇÃO 1: a linha "width: 100%;" foi removida daqui para permitir o centramento. */
 #pokedex-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 20px;
     max-width: min(1300px, 100vw);
     margin: auto;
-    padding: 20px; /* Adiciona um padding padrão para a lista */
+    padding: 20px;
     transition: max-width 0.3s ease, grid-template-columns 0.3s ease;
-    flex-grow: 1; /* Permite que a lista ocupe o espaço restante */
-    overflow-x: hidden; /* Impede overflow horizontal na lista */
+    flex-grow: 1;
+    align-content: start; 
 }
 
-/* ALTERAÇÃO 2: A linha "max-width: 70%;" foi removida para a lista usar o espaço do contêiner. */
 .app-container.panel-open #pokedex-list {
-    grid-template-columns: repeat(3, 1fr); /* Exatamente 3 colunas por fileira */
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     padding: 20px;
-    margin: 0 auto; /* Centraliza horizontalmente */
-    justify-content: center; /* Centraliza o grid */
+    margin: 0 auto; 
+    justify-content: center;
 }
 
 
@@ -182,6 +146,8 @@ header button:hover {
     padding: 15px;
     transition: transform 0.2s ease;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
 }
 
 .pokemon-card:hover {
@@ -234,6 +200,77 @@ header button:hover {
 .type-dragon { background-color: #065e64; }
 .type-steel { background-color: #B7B7CE; }
 .type-fairy { background-color: #D685AD; }
+
+.favorite-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    z-index: 10; /* Garante que o botão fique acima de outros elementos */
+}
+
+.favorite-button:hover {
+    opacity: 0.8;
+}
+
+.star-icon {
+    font-size: 20px;
+    color: #8d8d8d;
+    font-variation-settings: 'FILL' 0; 
+    transition: color 0.2s ease, font-variation-settings 0.2s ease, transform 0.2s ease;
+}
+.favorite-button:hover .star-icon {
+    color: #6e6e6e;
+}
+
+/* Estilo para a estrela quando favoritada (implementaremos a lógica depois) */
+.favorite-button.favorited .star-icon {
+    font-variation-settings: 'FILL' 1; 
+    color: gold;
+}
+
+.empty-state-message {
+    /* Faz a mensagem ocupar todo o espaço da grade */
+    grid-column: 1 / -1; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 20px;
+    color: #666; /* Cor do texto mais suave */
+    height: 50vh; /* Ocupa uma boa parte da altura da tela */
+}
+
+.empty-state-icon {
+    font-size: 60px; /* Ícone grande */
+    margin-bottom: 20px;
+    color: #888;
+}
+
+.empty-state-message h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.5em;
+    color: #000000;
+}
+
+.empty-state-message p {
+    margin: 0;
+    max-width: 300px;
+    line-height: 1.5;
+}
+
+/* Estilo opcional para a outra mensagem de busca */
+.search-criteria-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    font-weight: bold;
+    color: #555;
+}
 
 footer {
     margin-top: auto; /* Empurra o footer para o final se o conteúdo for menor que a tela */
