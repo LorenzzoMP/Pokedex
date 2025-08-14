@@ -10,7 +10,7 @@ body {
     padding: 0;
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* Garante que o body ocupa a altura total */
+    min-height: 100vh;
     width: 100%;
 }
 
@@ -18,9 +18,8 @@ header {
     background-color: #333;
     border-bottom: 5px solid #e3350d;
     color: white;
-    padding: 2% 0%;
+    padding: 20px;
     width: 100%;
-    max-width: 100%;
     text-align: center;
     margin-bottom: 40px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -28,12 +27,12 @@ header {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    position: relative; /* Adicionado para posicionar o botão de tradução */
+    position: relative;
 }
 
 header h1 {
     margin: 0 0 15px 0;
-}   
+}  
 
 header h1 .logo-icon {
     font-size: 1em;
@@ -41,16 +40,19 @@ header h1 .logo-icon {
     margin-left: 5px;
 }
 
-.language-toggle {
+.header-top-left-controls {
     position: absolute;
     top: 10px;
     left: 10px;
     z-index: 10;
+    display: flex;
+    gap: 10px;
 }
 
-.language-toggle button {
-    padding: 10px 15px;
-    background-color: #585858; /* Cor específica para o toggle de linguagem */
+.language-toggle button,
+.favorites-toggle .toggle-button {
+    padding: 10px;
+    background-color: #585858;
     color: white;
     border: none;
     border-radius: 5px;
@@ -59,38 +61,22 @@ header h1 .logo-icon {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
+    height: 44px;
+    width: 44px;
 }
 
-.language-toggle button:hover {
-    background-color: #414141; /* Cor de hover específica para o toggle */
+.language-toggle button:hover,
+.favorites-toggle .toggle-button:hover {
+    background-color: #414141;
 }
 
-/* Responsividade do botão de idioma */
-@media (max-width: 768px) {
-    .language-toggle {
-        top: 8px;
-        left: 8px;
-    }
-    
-    .language-toggle button {
-        padding: 8px 12px;
-    }
+.favorites-toggle .toggle-button.active {
+    background-color: #414141;
 }
 
-@media (max-width: 480px) {
-    .language-toggle {
-        top: 5px;
-        left: 5px;
-    }
-    
-    .language-toggle button {
-        padding: 6px 10px;
-    }
-    
-    .language-toggle button svg {
-        width: 14px;
-        height: 14px;
-    }
+.favorites-toggle .material-symbols-outlined {
+    color: white;
 }
 
 .search-and-filter-area {
@@ -102,16 +88,12 @@ header h1 .logo-icon {
     width: 90%;
     max-width: 800px;
     margin-top: 15px;
-    overflow: visible; /* Permite que o dropdown seja visível */
+    overflow: visible;
 }
 
 .search-bar {
-    display: flex;
-    gap: 10px;
-    flex-grow: 1;
-    justify-content: center;
     width: 100%;
-    max-width: 100%;
+    max-width: 358px;
 }
 
 header input[type="text"] {
@@ -119,22 +101,6 @@ header input[type="text"] {
     border: none;
     border-radius: 5px;
     width: 100%;
-    max-width: 358px;
-    margin-right: 0;
-}
-
-header button {
-    padding: 10px 15px;
-    background-color: #e3350d;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-header button:hover {
-    background-color: #a51f01;
 }
 
 .filter-by-type {
@@ -144,33 +110,31 @@ header button:hover {
     color: white;
     width: 100%;
     justify-content: center;
-    overflow: visible; /* Permite que o dropdown seja visível */
+    overflow: visible;
 }
 
 .filter-by-type label {
     font-weight: bold;
 }
 
-/* ALTERAÇÃO 1: a linha "width: 100%;" foi removida daqui para permitir o centramento. */
 #pokedex-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 20px;
     max-width: min(1300px, 100vw);
     margin: auto;
-    padding: 20px; /* Adiciona um padding padrão para a lista */
+    padding: 20px;
     transition: max-width 0.3s ease, grid-template-columns 0.3s ease;
-    flex-grow: 1; /* Permite que a lista ocupe o espaço restante */
-    overflow-x: hidden; /* Impede overflow horizontal na lista */
+    flex-grow: 1;
+    align-content: start; 
 }
 
-/* ALTERAÇÃO 2: A linha "max-width: 70%;" foi removida para a lista usar o espaço do contêiner. */
 .app-container.panel-open #pokedex-list {
-    grid-template-columns: repeat(3, 1fr); /* Exatamente 3 colunas por fileira */
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     padding: 20px;
-    margin: 0 auto; /* Centraliza horizontalmente */
-    justify-content: center; /* Centraliza o grid */
+    margin: 0 auto; 
+    justify-content: center;
 }
 
 
@@ -182,6 +146,8 @@ header button:hover {
     padding: 15px;
     transition: transform 0.2s ease;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
 }
 
 .pokemon-card:hover {
@@ -234,6 +200,77 @@ header button:hover {
 .type-dragon { background-color: #065e64; }
 .type-steel { background-color: #B7B7CE; }
 .type-fairy { background-color: #D685AD; }
+
+.favorite-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    z-index: 10; /* Garante que o botão fique acima de outros elementos */
+}
+
+.favorite-button:hover {
+    opacity: 0.8;
+}
+
+.star-icon {
+    font-size: 20px;
+    color: #8d8d8d;
+    font-variation-settings: 'FILL' 0; 
+    transition: color 0.2s ease, font-variation-settings 0.2s ease, transform 0.2s ease;
+}
+.favorite-button:hover .star-icon {
+    color: #6e6e6e;
+}
+
+/* Estilo para a estrela quando favoritada (implementaremos a lógica depois) */
+.favorite-button.favorited .star-icon {
+    font-variation-settings: 'FILL' 1; 
+    color: gold;
+}
+
+.empty-state-message {
+    /* Faz a mensagem ocupar todo o espaço da grade */
+    grid-column: 1 / -1; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 20px;
+    color: #666; /* Cor do texto mais suave */
+    height: 50vh; /* Ocupa uma boa parte da altura da tela */
+}
+
+.empty-state-icon {
+    font-size: 60px; /* Ícone grande */
+    margin-bottom: 20px;
+    color: #888;
+}
+
+.empty-state-message h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.5em;
+    color: #000000;
+}
+
+.empty-state-message p {
+    margin: 0;
+    max-width: 300px;
+    line-height: 1.5;
+}
+
+/* Estilo opcional para a outra mensagem de busca */
+.search-criteria-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    font-weight: bold;
+    color: #555;
+}
 
 footer {
     margin-top: auto; /* Empurra o footer para o final se o conteúdo for menor que a tela */
@@ -637,10 +674,6 @@ footer {
     line-height: 1;
 }
 
-/*
-  >>> INÍCIO DAS NOVAS REGRAS <<<
-*/
-
 /* Estilo para destacar o card do Pokémon atual na cadeia de evolução */
 .evolution-stage-card.current-evolution-card {
     border-color: #e3350d; /* Borda vermelha de destaque */
@@ -656,10 +689,6 @@ footer {
     transform: scale(1.05); /* Aumenta um pouco o card no hover */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
-
-/*
-  >>> FIM DAS NOVAS REGRAS <<<
-*/
 
 .evolution-branches {
     display: flex;
@@ -825,262 +854,30 @@ footer {
 
 /* Estilos para o botão "Show More" */
 .show-more-btn {
-    background-color: #555 !important; /* Fundo cinza */
-    border: 2px solid #e3350d !important; /* Bordas vermelhas */
-    color: white !important;
-    border-radius: 5px !important;
-    cursor: pointer;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    grid-column: 1 / -1; /* Ocupa toda a largura da grade */
+    margin: 20px auto;
+    padding: 15px 40px; /* Padding maior para um melhor visual */
+    font-size: 1.2em; /* Fonte um pouco maior */
     font-weight: bold;
+    color: #fff;
+    background-color: #e3350d;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-.show-more-btn:hover:not(:disabled) {
-    background-color: #707070 !important; /* Cinza mais claro no hover */
-    border-color: #a51f01 !important; /* Borda vermelha mais escura no hover */
+.show-more-btn:hover {
+    background-color: #c42f0a;
+    transform: translateY(-2px); /* Efeito sutil de elevação */
+}
+
+.show-more-btn:active {
+    transform: translateY(0);
 }
 
 .show-more-btn:disabled {
-    background-color: #444 !important; /* Cinza mais escuro quando desabilitado */
-    border-color: #666 !important; /* Borda mais escura quando desabilitado */
+    background-color: #8c8c8c;
     cursor: not-allowed;
-    opacity: 0.7;
 }
-
-/* Breakpoint intermediário para tablets grandes */
-@media (max-width: 1024px) {
-    #pokedex-list {
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 18px;
-    }
-
-    .pokemon-card {
-        padding: 14px;
-    }
-
-    .pokemon-card img {
-        width: 90px;
-        height: 90px;
-    }
-
-    .pokemon-card h2 {
-        font-size: 1.1em;
-    }
-
-    .search-and-filter-area {
-        gap: 15px;
-    }
-
-    header input[type="text"] {
-        width: 100%;
-        max-width: 280px;
-    }
-
-    .custom-select-container {
-        width: 30%;
-    }
-    
-    /* Ajustar o layout quando o painel está aberto em tablets */
-    .app-container.panel-open #pokedex-list {
-    gap: 200px;
-    padding: 20px;
-    margin: 0 auto; /* Centraliza horizontalmente */
-    justify-content: center; /* Centraliza o grid */
-}
-}
-
-/* Responsividade geral */
-@media (max-width: 968px) {
-    header {
-        padding: 3% 0;
-    }
-
-    .search-and-filter-area {
-        flex-direction: column;
-        gap: 15px;
-        width: 95%;
-    }
-
-    .search-bar {
-        width: 100%;
-    }
-
-    header input[type="text"] {
-        width: 100%;
-        max-width: min(280px, calc(100vw - 40px));
-        min-width: 200px;
-    }
-
-    .filter-by-type {
-        width: 100%;
-        flex-direction: column;
-        gap: 8px;
-        align-items: center;
-    }
-
-    .filter-by-type label {
-        text-align: center;
-        margin-bottom: 5px;
-    }
-
-    /* O painel de detalhes ocupa 100% da largura em telas menores */
-    .pokemon-detail-panel {
-        width: 100%;
-        position: fixed;
-        top: 0;
-        left: 0;
-        border-left: none;
-        border-bottom: 5px solid #e3350d;
-    }
-
-    .pokemon-detail-panel .close-button {
-        top: 10px;
-        left: 10px;
-    }
-    
-    .pokemon-detail-panel .smogon-button {
-        top: 10px;
-        right: 10px;
-    }
-
-    .pokemon-detail-panel .detail-image-container {
-        width: 150px;
-        height: 150px;
-    }
-
-    .pokemon-detail-panel h2 {
-        font-size: 1.8em;
-    }
-
-    .app-container.panel-open #pokedex-list {
-        max-width: 90%; /* Mais espaço para mobile */
-        grid-template-columns: repeat(2, 1fr); /* 2 colunas para mobile */
-        gap: 12px;
-        padding: 15px;
-        margin: 0 auto; /* Centraliza horizontalmente */
-        justify-content: center;
-    }
-
-    /* Impede que a lista seja empurrada quando o painel está aberto */
-    .app-container.panel-open {
-        margin-right: 0;
-    }
-    
-    body.panel-is-open {
-        overflow: hidden;
-    }
-
-    #pokedex-list {
-        grid-template-columns: repeat(auto-fill, minmax(min(130px, calc(100vw - 30px)), 1fr));
-        gap: 12px;
-        padding: 15px;
-    }
-}
-
-@media (max-width: 480px) {
-    header {
-        padding: 2% 0;
-    }
-
-    header h1 {
-        font-size: 1.8em;
-        margin-bottom: 10px;
-    }
-
-    .search-and-filter-area {
-        width: 98%;
-        gap: 12px;
-    }
-
-    header input[type="text"] {
-        font-size: 16px; /* Previne zoom no iOS */
-        min-width: 180px;
-        max-width: min(250px, calc(100vw - 30px));
-    }
-
-    .pokemon-detail-panel {
-        padding: 10px;
-    }
-
-    .pokemon-detail-panel .detail-image-container {
-        width: 120px;
-        height: 120px;
-    }
-
-    .pokemon-detail-panel h2 {
-        font-size: 1.5em;
-    }
-
-    #pokedex-list {
-        grid-template-columns: repeat(auto-fill, minmax(min(120px, calc(100vw - 40px)), 1fr));
-        gap: 10px;
-        padding: 10px;
-    }
-
-    .pokemon-card {
-        padding: 8px;
-    }
-
-    .pokemon-card img {
-        width: 70px;
-        height: 70px;
-    }
-
-    .pokemon-card h2 {
-        font-size: 0.9em;
-    }
-
-    .pokemon-type {
-        padding: 2px 6px;
-        margin: 1px;
-        font-size: 0.65em;
-    }
-    
-    /* Layout para painel aberto em telas pequenas */
-    .app-container.panel-open #pokedex-list {
-        max-width: 95%; /* Mais espaço para telas pequenas */
-        grid-template-columns: repeat(2, 1fr); /* 2 colunas para telas pequenas */
-        gap: 8px;
-        padding: 10px;
-        margin: 0 auto; /* Centraliza horizontalmente */
-        justify-content: center;
-    }
-}
-
-/* Breakpoint para telas muito pequenas */
-@media (max-width: 320px) {
-    #pokedex-list {
-        grid-template-columns: repeat(auto-fill, minmax(min(100px, calc(100vw - 20px)), 1fr));
-        gap: 8px;
-        padding: 8px;
-    }
-
-    .pokemon-card {
-        padding: 6px;
-    }
-
-    .pokemon-card img {
-        width: 60px;
-        height: 60px;
-    }
-
-    .pokemon-card h2 {
-        font-size: 0.8em;
-    }
-
-    .pokemon-type {
-        padding: 1px 4px;
-        margin: 0.5px;
-        font-size: 0.6em;
-    }
-}
-
-/* Breakpoint para telas muito grandes - otimizar layout de 3 colunas */
-@media (min-width: 1400px) {
-    .app-container.panel-open #pokedex-list {
-        max-width: 65%; /* Limita a largura para telas muito grandes */
-        grid-template-columns: repeat(3, 1fr); /* Mantém 3 colunas */
-        gap: 25px;
-        margin: 0 auto; /* Centraliza horizontalmente */
-        justify-content: center;
-    }
-}   

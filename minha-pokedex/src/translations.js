@@ -9,6 +9,9 @@ export const translations = {
         allTypes: "Todos os Tipos",
         height: "Altura:",
         weight: "Peso:",
+        weaknesses: "Fraquezas",
+        resistances: "Resistências",
+        immunities: "Imunidades",
         baseStats: "Estatísticas Base",
         abilities: "Habilidades",
         hidden: "(Oculta)",
@@ -16,6 +19,9 @@ export const translations = {
         loadingEvolutionChain: "Carregando cadeia de evolução...",
         developedBy: "Desenvolvido por Lorenzzo_MP",
         showMore: "Exibir mais",
+        "noFavoritesFound": "Nenhum Favorito Encontrado",
+        "noFavoritesFoundHint": "Clique na ⭐ em um Pokémon para adicioná-lo aqui!",
+        types: "Tipos",
         
         // Traduções dos tipos de Pokémon
         "type-normal": "Normal",
@@ -104,6 +110,9 @@ export const translations = {
         allTypes: "All Types",
         height: "Height:",
         weight: "Weight:",
+        weaknesses: "Weaknesses",
+        resistances: "Resistances",
+        immunities: "Immunities",
         baseStats: "Base Stats",
         abilities: "Abilities",
         hidden: "(Hidden)",
@@ -111,6 +120,9 @@ export const translations = {
         loadingEvolutionChain: "Loading evolution chain...",
         developedBy: "Developed by Lorenzzo_MP",
         showMore: "Show More",
+        "noFavoritesFound": "No Favorites Found",
+        "noFavoritesFoundHint": "Click the star ⭐ on a Pokémon to add it here!",
+        types: "Types",
         
         // English translations for Pokémon types
         "type-normal": "Normal",
